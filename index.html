@@ -10,82 +10,40 @@
 
     <style>
         :root {
-            --bg-primary: #f4f7f6;
-            --bg-secondary: #fff;
-            --surface-primary: #f8f9f9;
-            --text-primary: #2c3e50;
-            --text-secondary: #7f8c8d;
-            --accent-primary: #3498db;
-            --accent-secondary: #27ae60;
-            --accent-stop: #c0392b;
-            --border-color: #e1e5e8;
+            --bg-primary: #f4f7f6; --bg-secondary: #fff; --surface-primary: #f8f9f9;
+            --text-primary: #2c3e50; --text-secondary: #7f8c8d; --accent-primary: #3498db;
+            --accent-secondary: #27ae60; --accent-stop: #c0392b; --border-color: #e1e5e8;
         }
-
-        /* --- CORE APP STRUCTURE --- */
-        html, body {
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--bg-primary);
-        }
+        html, body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: var(--bg-primary); }
         
-        /* --- LOGIN PAGE STYLES --- */
-        #login-page {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            background-color: #1a1a1a;
-            color: white;
-            padding: 20px;
-            box-sizing: border-box;
-        }
-        .login-container {
-            width: 100%;
-            max-width: 350px;
-            text-align: center;
-        }
-        .login-container h1 { font-size: 2.5rem; color: white; }
-        .social-btn, .login-form button, #guest-btn {
-            width: 100%;
-            padding: 15px;
-            border-radius: 8px;
-            border: none;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .social-btn.google { background-color: #4285F4; color: white; }
-        .social-btn.apple { background-color: #000000; color: white; border: 1px solid #fff; }
-        
-        .divider { display: flex; align-items: center; text-align: center; color: #888; margin: 20px 0; }
-        .divider::before, .divider::after { content: ''; flex: 1; border-bottom: 1px solid #555; }
-        .divider:not(:empty)::before { margin-right: .25em; }
-        .divider:not(:empty)::after { margin-left: .25em; }
-
-        .login-form input { width: 100%; padding: 15px; background: #333; border: 1px solid #555; border-radius: 8px; color: white; margin-bottom: 10px; box-sizing: border-box; }
-        .login-form button { background-color: var(--accent-secondary); color: white; }
-        #guest-btn { background: none; color: #aaa; margin-top: 20px; border: 1px solid #555; }
-        
-        #main-app { display: none; }
-
-        /* --- CLASSIC LAYOUT STYLES --- */
         .container { background-color: var(--bg-secondary); max-width: 700px; margin: 20px auto; padding: 20px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); }
         h1, h2, h3 { color: var(--text-primary); text-align: center; }
         p.subtitle { text-align: center; margin-top: 0; margin-bottom: 20px; color: var(--text-secondary); }
         .section { margin-top: 20px; background-color: var(--surface-primary); padding: 20px; border-radius: 8px; border: 1px solid var(--border-color); }
         fieldset { border: none; padding: 0; margin: 0; }
-
         .input-group { margin-bottom: 15px; }
         .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary); }
         .input-group input { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
         .input-group input:disabled { background-color: #eee; cursor: not-allowed; }
+        
+        .weight-log-group { display: flex; gap: 10px; align-items: center; }
+        .weight-log-group input { flex-grow: 1; }
+        .weight-log-group button { padding: 10px 15px; font-size: 16px; font-weight: bold; color: white; background-color: var(--accent-primary); border: none; border-radius: 6px; cursor: pointer; flex-shrink: 0; }
+        .weight-log-group button:active { transform: scale(0.98); }
+
+        #weight-tracker-display { display: grid; grid-template-columns: repeat(auto-fit, minmax(100px, 1fr)); gap: 15px; text-align: center; margin-top: 20px; }
+        .weight-metric .label { font-size: 14px; color: var(--text-secondary); }
+        .weight-metric .value { font-size: 22px; font-weight: bold; color: var(--text-primary); overflow-wrap: break-word; }
+        #weight-change-value.gained { color: var(--accent-stop); }
+        #weight-change-value.lost { color: var(--accent-secondary); }
+        #live-weight-change-container { text-align: center; margin-top: 20px; padding: 15px; border-radius: 8px; background-color: #eaf2f8; }
+        #live-weight-change-container .label { font-size: 14px; font-weight: bold; color: var(--text-secondary); margin-bottom: 5px; }
+        #live-weight-change-value { font-size: 2rem; font-weight: bold; color: var(--accent-secondary); font-family: 'Courier New', Courier, monospace; }
+        #live-weight-change-value.gained { color: var(--accent-stop); }
+        #weight-history-list { list-style: none; padding: 0; margin-top: 15px; font-size: 14px; color: var(--text-secondary); }
+        #weight-history-list li { display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid var(--border-color); }
+        #weight-history-list li:last-child { border-bottom: none; }
+
         .height-group, .gender-group { display: flex; gap: 10px; }
         .gender-group label { flex: 1; text-align: center; padding: 10px; border: 1px solid #bdc3c7; border-radius: 6px; cursor: pointer; background: white; color: #333; }
         .gender-group input[type="radio"] { display: none; }
@@ -109,6 +67,8 @@
         #fasting-ui-container { text-align: center; padding: 20px 0; }
         #fasting-timer { font-size: 3.5rem; font-weight: 300; letter-spacing: 2px; color: var(--text-primary); }
         #fasting-calories { font-size: 1.2rem; opacity: 0.8; margin-top: -5px; color: var(--text-secondary); }
+        #fasting-weight-loss { font-size: 1.2rem; opacity: 0.8; margin-top: 10px; color: var(--accent-secondary); font-family: 'Courier New', Courier, monospace;}
+        #fasting-calories .value, #fasting-weight-loss .value { font-weight: bold; }
         
         #active-mode-ui { display: none; }
         .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; margin-top: 10px; }
@@ -124,12 +84,10 @@
         #start-stop-btn:active { transform: scale(0.98); }
         #find-places-btn { background-color: #16a085; }
         #find-places-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
-        #logout-btn { background-color: #7f8c8d; margin-top: 15px; width: 100%; box-sizing: border-box; }
-
+        
         #places-section { margin-top: 20px; }
         #places-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; }
         #places-list li { padding: 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.2s; }
-        #places-list li:last-child { border-bottom: none; }
         #places-list li:hover { background-color: #eee; }
         .history-entry { background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; position: relative; }
         .history-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-weight: bold; }
@@ -155,126 +113,93 @@
 </head>
 <body>
 
-<div id="login-page">
-    <div class="login-container">
-        <h1>Fitness Journal</h1>
-        <p>Sign in to sync your progress.</p>
-        <button class="social-btn google" onclick="mockLogin('Google')">⚪ Sign in with Google</button>
-        <button class="social-btn apple" onclick="mockLogin('Apple')"> Sign in with Apple</button>
-        <div class="divider">OR</div>
-        <form class="login-form" onsubmit="event.preventDefault(); mockLogin('Email');">
-            <input type="email" placeholder="Email" required>
-            <input type="password" placeholder="Password" required>
-            <button type="submit">Login with Email</button>
-        </form>
-        <button id="guest-btn">Continue as Guest (Local Save)</button>
-    </div>
-</div>
+<div class="container">
+    <h1>Fitness Journal</h1>
+    <p class="subtitle">Your progress is saved automatically in this browser.</p>
 
-<div id="main-app">
-    <div class="container">
-        <h1>Fitness Journal</h1>
-        <p class="subtitle">Track your fasts, log your activities, and find new places.</p>
-
-        <div id="settings-section" class="section">
-            <h2 style="margin-top:0;">Settings & Details</h2>
+    <div id="settings-section" class="section">
+        <h2 style="margin-top:0;">Settings & Details</h2>
+        <div class="input-group">
+            <h3>Weekly Goal</h3>
+            <label for="goal-input">Distance Goal (miles)</label>
+            <input type="number" id="goal-input" placeholder="e.g., 10" onchange="saveGoal()">
+        </div>
+        <fieldset id="user-details">
+            <h3>Your Details</h3>
             <div class="input-group">
-                <h3>Weekly Goal</h3>
-                <label for="goal-input">Distance Goal (miles)</label>
-                <input type="number" id="goal-input" placeholder="e.g., 10" onchange="saveGoal()">
+                <label for="weight">Your Current Weight (lbs)</label>
+                <input type="number" id="weight" oninput="saveAndCalculate()" placeholder="e.g., 165.5">
             </div>
-            <fieldset id="user-details">
-                <h3>Your Details</h3>
-                <div class="input-group"><label for="weight">Weight (lbs)</label><input type="number" id="weight" oninput="saveAndCalculate()"></div>
-                <div class="input-group"><label>Height</label><div class="height-group"><input type="number" id="height-ft" placeholder="feet" oninput="saveAndCalculate()"><input type="number" id="height-in" placeholder="inches" oninput="saveAndCalculate()"></div></div>
-                <div class="input-group"><label>Age</label><input type="number" id="age" oninput="saveAndCalculate()"></div>
-                <div class="input-group"><label>Gender</label><div class="gender-group"><input type="radio" id="male" name="gender" value="male" onchange="saveAndCalculate()"><label for="male">Male</label><input type="radio" id="female" name="gender" value="female" onchange="saveAndCalculate()"><label for="female">Female</label></div></div>
-            </fieldset>
-            <button id="logout-btn" onclick="logout()">Logout & Clear Local Data</button>
-        </div>
-
-        <div id="tracker-section" class="section">
-            <div class="top-info-cluster">
-                <div id="weather-display">
-                    <div id="weather-icon">--</div>
-                    <div id="weather-temp">--°F</div>
-                </div>
-                <div class="goal-display">
-                    <div class="goal-progress-circle" id="goal-progress"><span class="goal-percent">0%</span></div>
-                    <div class="label" style="font-size:13px; color:var(--text-secondary); margin-top:5px;">Weekly Goal</div>
-                </div>
-            </div>
-            <div class="mode-switch">
-                <label>Fasting</label>
-                <label class="switch"><input type="checkbox" id="mode-toggle" onchange="toggleMode()"><span class="slider"></span></label>
-                <label>Active</label>
-            </div>
-            
-            <div id="fasting-ui-container">
-                <div id="fasting-timer">00:00:00</div>
-                <div id="fasting-calories"><span class="value">0</span> Calories Burned</div>
-            </div>
-
-            <div id="active-mode-ui">
-                <div class="metrics-grid">
-                    <div id="active-calories-metric" class="metric"><div id="active-calories-burned" class="value">0</div><div class="label">Calories</div></div>
-                    <div class="metric"><div id="distance-traveled" class="value">0.0</div><div class="label">Distance (miles)</div></div>
-                </div>
-                <div id="detected-activity">Stationary</div>
-                <div id="map-container"><div id="map"></div></div>
-                <div class="button-group">
-                    <button id="find-places-btn" onclick="findNearbyPlaces()" disabled>Find Places</button>
-                </div>
-                <div id="places-section">
-                    <h3>Nearby Parks & Trails</h3>
-                    <ul id="places-list"></ul>
-                    <div id="places-status"></div>
-                </div>
-            </div>
-            <button id="start-stop-btn" onclick="toggleSession()"></button>
-        </div>
-
-        <div id="history-section" class="section">
-            <h2>Session Log</h2>
-            <div id="history-log"></div>
-        </div>
+            <div class="input-group"><label>Height</label><div class="height-group"><input type="number" id="height-ft" placeholder="feet" oninput="saveAndCalculate()"><input type="number" id="height-in" placeholder="inches" oninput="saveAndCalculate()"></div></div>
+            <div class="input-group"><label>Age</label><input type="number" id="age" oninput="saveAndCalculate()"></div>
+            <div class="input-group"><label>Gender</label><div class="gender-group"><input type="radio" id="male" name="gender" value="male" oninput="saveAndCalculate()"><label for="male">Male</label><input type="radio" id="female" name="gender" value="female" oninput="saveAndCalculate()"><label for="female">Female</label></div></div>
+        </fieldset>
     </div>
 
-    <div class="modal-overlay" id="log-modal">
-        <div class="modal-content">
-            <h2>Session Complete!</h2>
-            <div class="modal-stats">
-                <div id="modal-duration"></div>
-                <div id="modal-distance"></div>
-                <div id="modal-calories"></div>
-            </div>
-            <textarea id="modal-notes" placeholder="How was it? Any thoughts?"></textarea>
-            <img id="modal-photo-preview" src="" alt="Your photo preview"/>
-            <label for="modal-photo-input" id="modal-photo-label">Add a Photo</label>
-            <input type="file" id="modal-photo-input" accept="image/*">
-            <div class="modal-buttons">
-                <button id="modal-cancel-btn">Discard</button>
-                <button id="modal-save-btn">Save to Log</button>
-            </div>
+    <div id="tracker-section" class="section">
+        <div class="top-info-cluster">
+            <div id="weather-display"><div id="weather-icon">--</div><div id="weather-temp">--°F</div></div>
+            <div class="goal-display"><div class="goal-progress-circle" id="goal-progress"><span class="goal-percent">0%</span></div><div class="label" style="font-size:13px;color:var(--text-secondary);margin-top:5px;">Weekly Goal</div></div>
         </div>
+        <div class="mode-switch">
+            <label>Fasting</label>
+            <label class="switch"><input type="checkbox" id="mode-toggle" onchange="toggleMode()"><span class="slider"></span></label>
+            <label>Active</label>
+        </div>
+        <div id="fasting-ui-container">
+            <div id="fasting-timer">00:00:00</div>
+            <div id="fasting-calories"><span class="value">0</span> Calories Burned</div>
+            <div id="fasting-weight-loss">Projected Loss: <span class="value">0.00000</span> lbs</div>
+        </div>
+        <div id="active-mode-ui">
+            <div class="metrics-grid">
+                <div id="active-calories-metric" class="metric"><div id="active-calories-burned" class="value">0</div><div class="label">Calories</div></div>
+                <div class="metric"><div id="distance-traveled" class="value">0.0</div><div class="label">Distance (miles)</div></div>
+            </div>
+            <div id="detected-activity">Stationary</div>
+            <div id="map-container"><div id="map"></div></div>
+            <div class="button-group"><button id="find-places-btn" onclick="findNearbyPlaces()" disabled>Find Places</button></div>
+            <div id="places-section"><h3>Nearby Parks & Trails</h3><ul id="places-list"></ul><div id="places-status"></div></div>
+        </div>
+        <button id="start-stop-btn" onclick="toggleSession()"></button>
     </div>
 
-    <div class="modal-overlay" id="onboarding-modal">
-        <div class="modal-content">
-            <h2>Welcome to Your Fitness Journal!</h2>
-            <p>This app helps you track your fasts and activities. Use the toggle switch in the tracker to change modes. Your data is saved right here in your browser.</p>
-            <button id="onboarding-btn">Got it!</button>
-        </div>
+    <div id="history-section" class="section">
+        <h2>Session Log</h2>
+        <div id="history-log"></div>
     </div>
 </div>
 
+<div class="modal-overlay" id="log-modal">
+    <div class="modal-content">
+        <h2>Session Complete!</h2>
+        <div class="modal-stats">
+            <div id="modal-duration"></div><div id="modal-distance"></div><div id="modal-calories"></div>
+            <div id="modal-weight-loss"></div>
+        </div>
+        <textarea id="modal-notes" placeholder="How was it? Any thoughts?"></textarea>
+        <img id="modal-photo-preview" src="" alt="Your photo preview"/>
+        <label for="modal-photo-input" id="modal-photo-label">Add a Photo</label>
+        <input type="file" id="modal-photo-input" accept="image/*">
+        <div class="modal-buttons"><button id="modal-cancel-btn">Discard</button><button id="modal-save-btn">Save to Log</button></div>
+    </div>
+</div>
+<div class="modal-overlay" id="onboarding-modal">
+    <div class="modal-content">
+        <h2>Welcome to Your Fitness Journal!</h2>
+        <p>This app helps you track your fasts and activities. Use the toggle switch in the tracker to change modes. Your data is saved right here in your browser.</p>
+        <button id="onboarding-btn">Got it!</button>
+    </div>
+</div>
+    
 <script>
 // --- STATE & DOM ---
-let isSessionActive = false, sessionInterval, totalCaloriesBurned = 0, totalDistance = 0, weightKg = 0, bmrPerSecond = 0, startTime;
+let isSessionActive = false, sessionInterval, totalCaloriesBurned = 0, totalDistance = 0, weightKg = 0, bmrPerSecond = 0, startTime, projectedWeightLoss = 0;
 let currentMode = 'fasting';
 let motionMagnitude = 0, watchId, map, userMarker, pathPolyline, lastPosition = null, placesMarkers = [];
 const MET_VALUES = { STATIONARY: 1.5, WALKING: 3.5, RUNNING: 9.8 };
 let tempSessionData = {}, tempPhotoData = '';
+const CALORIES_PER_POUND = 3500;
 
 const modeToggle = document.getElementById('mode-toggle');
 const startStopBtn = document.getElementById('start-stop-btn');
@@ -283,313 +208,62 @@ const historyLog = document.getElementById('history-log');
 const goalProgress = document.getElementById('goal-progress');
 const goalPercent = document.getElementById('goal-percent');
 
-
-// --- LOGIN & APP STARTUP ---
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('guest-btn').addEventListener('click', startGuestSession);
-});
-
-function mockLogin(provider) {
-    alert( `This is a demonstration.\n\nIn a real application, clicking this would securely log you in with ${provider}. Your workout history, goals, and settings would then be loaded from your cloud account, allowing you to access them from any device.` );
-}
-
-function startGuestSession() {
-    document.getElementById('login-page').style.display = 'none';
-    document.getElementById('main-app').style.display = 'block';
-    loadUserDetails(); 
-    calculateWeightAndBMR(); 
-    updateGoalProgress();
-    renderHistory();
-    updateUIForMode();
-    showOnboarding();
-}
-
-function logout() {
-    if (confirm("Logging out will clear all locally saved data (history, settings, goals) and return to the login screen. Are you sure?")) {
-        localStorage.clear();
-        location.reload(); 
-    }
-}
-
-
 // --- UI & MODE ---
-function updateUIForMode() {
-    const isActive = currentMode === 'active';
-    document.getElementById('fasting-ui-container').style.display = isActive ? 'none' : 'block';
-    document.getElementById('active-mode-ui').style.display = isActive ? 'block' : 'none';
-    
-    startStopBtn.textContent = isSessionActive ? 'Stop Session' : 'Start Session';
-    startStopBtn.classList.toggle('stop', isSessionActive);
-    
-    if(isActive) { startStopBtn.style.backgroundColor = isSessionActive ? 'var(--accent-stop)' : 'var(--accent-secondary)'; }
-    else { startStopBtn.style.backgroundColor = isSessionActive ? 'var(--accent-stop)' : 'var(--accent-primary)'; }
+function updateUIForMode(){const e=currentMode==='active';document.getElementById('fasting-ui-container').style.display=e?'none':'block',document.getElementById('active-mode-ui').style.display=e?'block':'none',startStopBtn.textContent=isSessionActive?'Stop Session':'Start Session',startStopBtn.classList.toggle('stop',isSessionActive),e?startStopBtn.style.backgroundColor=isSessionActive?'var(--accent-stop)':'var(--accent-secondary)':startStopBtn.style.backgroundColor=isSessionActive?'var(--accent-stop)':'var(--accent-primary)',e&&!map?initMap():e&&map&&map.invalidateSize()}
+function toggleMode(){if(isSessionActive)return alert("Stop the current session before changing modes."),void(modeToggle.checked=currentMode==='active');currentMode=modeToggle.checked?'active':'fasting',updateUIForMode()}
 
-    if (isActive && !map) { initMap(); } 
-    else if (isActive && map) { map.invalidateSize(); }
-}
-
-function toggleMode() {
-    if (isSessionActive) {
-        alert("Stop the current session before changing modes.");
-        modeToggle.checked = (currentMode === 'active');
-        return;
-    }
-    currentMode = modeToggle.checked ? 'active' : 'fasting';
-    updateUIForMode();
-}
-
-// --- SESSION CONTROL ---
-function toggleSession() {
-    isSessionActive = !isSessionActive;
-    if(navigator.vibrate) navigator.vibrate(50);
-    
-    if (isSessionActive) {
-        calculateWeightAndBMR();
-        if (weightKg <= 0) { alert("Please fill in your details first."); isSessionActive = false; return; }
-        
-        startTime = new Date();
-        totalCaloriesBurned = 0;
-        document.querySelectorAll('#settings-section input, #mode-toggle').forEach(el=>el.disabled=true);
-
-        if (currentMode === 'active') {
-            totalDistance = 0; lastPosition = null;
-            if(pathPolyline) pathPolyline.setLatLngs([]);
-            clearPlacesMarkers();
-            document.getElementById('find-places-btn').disabled = true;
-            startMotionDetection();
-            startLocationTracking();
-        }
-        sessionInterval = setInterval(updateTracker, 1000);
-    } else {
-        clearInterval(sessionInterval);
-        openLogModal();
-        document.querySelectorAll('#settings-section input, #mode-toggle').forEach(el=>el.disabled=false);
-        if (currentMode === 'active') { stopMotionDetection(); stopLocationTracking(); }
-    }
-    updateUIForMode();
-}
-
-// --- TRACKER LOGIC ---
-function updateTracker() {
-    if (currentMode === 'fasting') {
-        totalCaloriesBurned += bmrPerSecond;
-        const elapsedMs = new Date() - startTime;
-        document.getElementById('fasting-timer').textContent = formatDuration(elapsedMs);
-        document.querySelector('#fasting-calories .value').textContent = totalCaloriesBurned.toFixed(0);
-    } else {
-        let met = MET_VALUES.STATIONARY;
-        if (motionMagnitude > 3.0) { met = MET_VALUES.RUNNING; document.getElementById('detected-activity').textContent = 'Running'; }
-        else if (motionMagnitude > 0.8) { met = MET_VALUES.WALKING; document.getElementById('detected-activity').textContent = 'Walking'; }
-        else { document.getElementById('detected-activity').textContent = 'Stationary'; }
-        const caloriesPerSecond = (met * 3.5 * weightKg) / 12000;
-        
-        if (caloriesPerSecond > 0) totalCaloriesBurned += caloriesPerSecond;
-        document.getElementById('active-calories-burned').textContent = totalCaloriesBurned.toFixed(0);
-        document.getElementById('distance-traveled').textContent = totalDistance.toFixed(1);
-    }
-}
+// --- SESSION & TRACKER ---
+function toggleSession(){isSessionActive=!isSessionActive,navigator.vibrate&&navigator.vibrate(50),isSessionActive?(calculateWeightAndBMR(),weightKg<=0?(alert("Please fill in your details first."),void(isSessionActive=!1)):(startTime=new Date,totalCaloriesBurned=0,projectedWeightLoss=0,document.querySelectorAll('#settings-section input, #mode-toggle').forEach(e=>e.disabled=!0),currentMode==='active'&&(totalDistance=0,lastPosition=null,pathPolyline&&pathPolyline.setLatLngs([]),clearPlacesMarkers(),document.getElementById('find-places-btn').disabled=!0,startMotionDetection(),startLocationTracking()),sessionInterval=setInterval(updateTracker,1e3))):(clearInterval(sessionInterval),openLogModal(),document.querySelectorAll('#settings-section input, #mode-toggle').forEach(e=>e.disabled=!1),currentMode==='active'&&(stopMotionDetection(),stopLocationTracking())),updateUIForMode()}
+function updateTracker(){if(currentMode==='fasting'){totalCaloriesBurned+=bmrPerSecond,projectedWeightLoss=totalCaloriesBurned/CALORIES_PER_POUND;const e=new Date-startTime;document.getElementById('fasting-timer').textContent=formatDuration(e),document.querySelector('#fasting-calories .value').textContent=totalCaloriesBurned.toFixed(0),document.querySelector('#fasting-weight-loss .value').textContent=projectedWeightLoss.toFixed(7)}else{let e=MET_VALUES.STATIONARY;motionMagnitude>3?(e=MET_VALUES.RUNNING,document.getElementById('detected-activity').textContent='Running'):motionMagnitude>0.8?(e=MET_VALUES.WALKING,document.getElementById('detected-activity').textContent='Walking'):document.getElementById('detected-activity').textContent='Stationary';const t=(e*3.5*weightKg)/12e3;t>0&&(totalCaloriesBurned+=t),document.getElementById('active-calories-burned').textContent=totalCaloriesBurned.toFixed(0),document.getElementById('distance-traveled').textContent=totalDistance.toFixed(1)}}
 
 // --- MODAL & LOGGING ---
-function openLogModal() {
-    const durationMs = new Date() - startTime;
-    tempSessionData = { date: new Date(), mode: currentMode, calories: totalCaloriesBurned.toFixed(0), distance: totalDistance.toFixed(2), duration: formatDuration(durationMs) };
-    
-    document.getElementById('modal-calories').textContent = `🔥 ${tempSessionData.calories} cal`;
-    const modalDistance = document.getElementById('modal-distance');
-    const modalDuration = document.getElementById('modal-duration');
-    const photoLabel = document.getElementById('modal-photo-label');
-
-    if (currentMode === 'active') {
-        modalDistance.textContent = `📏 ${tempSessionData.distance} mi`;
-        modalDistance.style.display = 'block';
-        if(modalDuration) modalDuration.style.display = 'none';
-        photoLabel.style.display = 'block';
-    } else {
-        modalDistance.style.display = 'none';
-        if(modalDuration) modalDuration.textContent = `⏱️ ${tempSessionData.duration}`;
-        if(modalDuration) modalDuration.style.display = 'block';
-        photoLabel.style.display = 'none';
-    }
-    document.getElementById('modal-notes').value = '';
-    document.getElementById('modal-photo-preview').style.display = 'none';
-    document.getElementById('modal-photo-preview').src = '';
-    tempPhotoData = '';
-    logModal.style.display = 'flex';
-}
-function closeLogModal() { logModal.style.display = 'none'; }
-function saveLog() {
-    tempSessionData.notes = document.getElementById('modal-notes').value;
-    if (currentMode === 'active') tempSessionData.photo = tempPhotoData;
-    const history = JSON.parse(localStorage.getItem('sessionHistory')) || [];
-    history.unshift(tempSessionData);
-    localStorage.setItem('sessionHistory', JSON.stringify(history));
-    updateGoalProgress();
-    renderHistory();
-    closeLogModal();
-}
-document.getElementById('modal-save-btn').onclick = saveLog;
-document.getElementById('modal-cancel-btn').onclick = closeLogModal;
-document.getElementById('modal-photo-input').onchange = (event) => {
-    const file = event.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (e) => {
-        tempPhotoData = e.target.result;
-        document.getElementById('modal-photo-preview').src = tempPhotoData;
-        document.getElementById('modal-photo-preview').style.display = 'block';
-    };
-    reader.readAsDataURL(file);
-};
+function openLogModal(){const e=new Date-startTime;tempSessionData={date:new Date,mode:currentMode,calories:totalCaloriesBurned.toFixed(0),distance:totalDistance.toFixed(2),duration:formatDuration(e),projectedWeightLoss:projectedWeightLoss.toFixed(7)},document.getElementById('modal-calories').textContent=`🔥 ${tempSessionData.calories} cal`;const t=document.getElementById('modal-distance'),o=document.getElementById('modal-duration'),n=document.getElementById('modal-photo-label'),a=document.getElementById('modal-photo-preview'),c=document.getElementById('modal-weight-loss');currentMode==='active'?(t.textContent=`📏 ${tempSessionData.distance} mi`,t.style.display='block',o&&(o.style.display='none'),c&&(c.style.display='none'),n.style.display='block'):(t.style.display='none',o&&(o.textContent=`⏱️ ${tempSessionData.duration}`),o&&(o.style.display='block'),c&&(c.innerHTML=`⚖️ ${tempSessionData.projectedWeightLoss} lbs lost (projected)`),c&&(c.style.display='block'),n.style.display='none'),document.getElementById('modal-notes').value='',a.style.display='none',a.src='',tempPhotoData='',logModal.style.display='flex'}
+function closeLogModal(){logModal.style.display='none'}
+function saveLog(){tempSessionData.notes=document.getElementById('modal-notes').value,currentMode==='active'&&(tempSessionData.photo=tempPhotoData);const e=JSON.parse(localStorage.getItem('sessionHistory'))||[];e.unshift(tempSessionData),localStorage.setItem('sessionHistory',JSON.stringify(e)),updateGoalProgress(),renderHistory(),closeLogModal()}
+document.getElementById('modal-save-btn').onclick=saveLog,document.getElementById('modal-cancel-btn').onclick=closeLogModal,document.getElementById('modal-photo-input').onchange=e=>{const t=e.target.files[0];if(t){const o=new FileReader;o.onload=e=>{tempPhotoData=e.target.result;const t=document.getElementById('modal-photo-preview');t.src=tempPhotoData,t.style.display='block'},o.readAsDataURL(t)}};
 
 // --- HISTORY & SHARING ---
-function renderHistory() {
-    historyLog.innerHTML = '';
-    const history = JSON.parse(localStorage.getItem('sessionHistory')) || [];
-    history.forEach((session, index) => {
-        const entryDiv = document.createElement('div');
-        entryDiv.className = 'history-entry';
-        
-        let statsHtml = `🔥 ${session.calories} cal`;
-        if (session.mode === 'active' && parseFloat(session.distance) > 0) { statsHtml += ` | 📏 ${session.distance} mi`; }
-        else if (session.duration) { statsHtml += ` | ⏱️ ${session.duration}`; }
-        
-        entryDiv.innerHTML = `
-            <button class="share-btn" onclick='shareSession(${index})'>📤</button>
-            <div class="history-header"><span>${new Date(session.date).toLocaleDateString()}</span><span>${statsHtml}</span></div>
-            ${session.photo ? `<img src="${session.photo}" class="history-photo" alt="User activity photo">` : ''}
-            ${session.notes ? `<p class="history-notes">${session.notes}</p>` : ''}`;
-        historyLog.appendChild(entryDiv);
-    });
-}
-async function shareSession(index) {
-    const history = JSON.parse(localStorage.getItem('sessionHistory')) || [];
-    const session = history[index]; if (!session) return;
-    let text;
-    if (session.mode === 'active') { text = `I just completed a workout! I went ${session.distance} miles and burned ${session.calories} calories.`; }
-    else { text = `I just finished a ${session.duration} fast and burned ${session.calories} calories.`; }
-    if (navigator.share) {
-        try { await navigator.share({ title: 'My Fitness Activity', text: text }); }
-        catch (error) { console.error('Error sharing:', error); }
-    } else { alert('Web Share is not supported on this browser.'); }
-}
+function renderHistory(){historyLog.innerHTML='';const e=JSON.parse(localStorage.getItem('sessionHistory'))||[];e.forEach((e,t)=>{const o=document.createElement('div');o.className='history-entry';let n=`🔥 ${e.calories} cal`;e.mode==='active'&&parseFloat(e.distance)>0?n+=` | 📏 ${e.distance} mi`:e.duration&&(n+=` | ⏱️ ${e.duration}`),e.projectedWeightLoss>0&&(n+=` | ⚖️ ${parseFloat(e.projectedWeightLoss).toFixed(5)} lbs`);o.innerHTML=`<button class="share-btn" onclick='shareSession(${JSON.stringify(e)})'>📤</button><div class="history-header"><span>${new Date(e.date).toLocaleDateString()}</span><span>${n}</span></div>${e.photo?`<img src="${e.photo}" class="history-photo" alt="User activity photo">`:""}${e.notes?`<p class="history-notes">${e.notes}</p>`:""}`,historyLog.appendChild(o)})}
+async function shareSession(e){let t;t=e.mode==='active'?`I just completed a workout! I went ${e.distance} miles and burned ${e.calories} calories.`:e.projectedWeightLoss?`I just finished a ${e.duration} fast! Projected weight loss: ${parseFloat(e.projectedWeightLoss).toFixed(5)} lbs.`:`I just finished a ${e.duration} fast and burned ${e.calories} calories.`;if(navigator.share)try{await navigator.share({title:'My Fitness Activity',text:t})}catch(e){console.error('Error sharing:',e)}else alert('Web Share is not supported on this browser.')}
 
 // --- GOALS, WEATHER, PLACES ---
-function saveGoal() {
-    const goal = document.getElementById('goal-input').value;
-    localStorage.setItem('weeklyGoal', goal);
-    updateGoalProgress();
-}
-function updateGoalProgress() {
-    const goal = parseFloat(localStorage.getItem('weeklyGoal')) || 0;
-    if (goal <= 0) { goalPercent.textContent = `Set`; goalProgress.style.background = `conic-gradient(#e0e0e0 360deg, #e0e0e0 0deg)`; return; }
-    const history = JSON.parse(localStorage.getItem('sessionHistory')) || [];
-    const oneWeekAgo = new Date(); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-    const weeklyDistance = history.filter(s => new Date(s.date) >= oneWeekAgo && s.mode === 'active').reduce((sum, s) => sum + parseFloat(s.distance), 0);
-    const percent = Math.min(100, (weeklyDistance / goal) * 100);
-    goalPercent.textContent = `${Math.round(percent)}%`;
-    goalProgress.style.background = `conic-gradient(var(--accent-secondary) ${percent * 3.6}deg, #e0e0e0 ${percent * 3.6}deg)`;
-}
-async function getWeather(lat, lon) {
-    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`;
-    try {
-        const response = await fetch(url);
-        const data = await response.json();
-        document.getElementById('weather-temp').textContent = `${Math.round(data.current.temperature_2m)}°F`;
-        document.getElementById('weather-icon').textContent = getWeatherIcon(data.current.weather_code);
-    } catch(error) { console.error("Failed to fetch weather:", error); }
-}
-function getWeatherIcon(c) { if(c===0)return'☀️';if(c<=3)return'☁️';if(c<=48)return'🌫️';if(c<=60)return'💧';if(c<=70)return'🌧️';if(c<=80)return'❄️';if(c>80)return'⛈️';return'-';}
-async function findNearbyPlaces() {
-    if (!lastPosition) { alert("Waiting for your location."); return; }
-    const placesStatus = document.getElementById('places-status');
-    const placesList = document.getElementById('places-list');
-    placesStatus.textContent = "Searching..."; placesList.innerHTML = ''; clearPlacesMarkers();
-    const radius=2000, lat=lastPosition.latitude, lon=lastPosition.longitude;
-    const query = `[out:json][timeout:25];(node["leisure"="park"](around:${radius},${lat},${lon});way["leisure"="park"](around:${radius},${lat},${lon});way["highway"~"^(footway|path|track)$"]["foot"="designated"](around:${radius},${lat},${lon}););out body;>;out skel qt;`;
-    try {
-        const response = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: query });
-        const data = await response.json();
-        renderPlaces(data.elements);
-    } catch (error) { placesStatus.textContent = "Could not fetch places."; }
-}
-function renderPlaces(elements) {
-    const places = {};
-    elements.forEach(el => {
-        if (el.tags && el.tags.name) {
-            if (!places[el.tags.name]) {
-                let lat, lon;
-                if (el.type === 'node') { lat = el.lat; lon = el.lon; }
-                else if (el.type === 'way' && el.nodes) { const firstNode = elements.find(e => e.id === el.nodes[0]); if (firstNode) { lat = firstNode.lat; lon = firstNode.lon; } }
-                if (lat && lon) places[el.tags.name] = { name: el.tags.name, lat, lon };
-            }
-        }
-    });
-    const placesArray = Object.values(places);
-    const placesList = document.getElementById('places-list');
-    document.getElementById('places-status').textContent = `Found ${placesArray.length} places.`;
-    if (placesArray.length === 0) return;
-    placesArray.forEach(place => {
-        const li = document.createElement('li');
-        li.textContent = place.name;
-        li.onclick = () => map.setView([place.lat, place.lon], 16);
-        placesList.appendChild(li);
-        const placeMarker = L.marker([place.lat, place.lon], { icon: L.icon({ iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png`, shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup(place.name);
-        placesMarkers.push(placeMarker);
-    });
-}
-function clearPlacesMarkers() { placesMarkers.forEach(marker => map.removeLayer(marker)); placesMarkers = []; }
+function saveGoal(){localStorage.setItem('weeklyGoal',document.getElementById('goal-input').value),updateGoalProgress()}
+function updateGoalProgress(){const e=parseFloat(localStorage.getItem('weeklyGoal'))||0;if(e<=0)return goalPercent.textContent='Set',void(goalProgress.style.background='conic-gradient(#e0e0e0 360deg, #e0e0e0 0deg)');const t=JSON.parse(localStorage.getItem('sessionHistory'))||[],o=new Date;o.setDate(o.getDate()-7);const n=t.filter(e=>new Date(e.date)>=o&&e.mode==='active').reduce((e,t)=>e+parseFloat(t.distance),0),a=Math.min(100,n/e*100);goalPercent.textContent=`${Math.round(a)}%`,goalProgress.style.background=`conic-gradient(var(--accent-secondary) ${a*3.6}deg, #e0e0e0 ${a*3.6}deg)`}
+async function getWeather(e,t){const o=`https://api.open-meteo.com/v1/forecast?latitude=${e}&longitude=${t}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`;try{const e=await fetch(o),t=await e.json();document.getElementById('weather-temp').textContent=`${Math.round(t.current.temperature_2m)}°F`,document.getElementById('weather-icon').textContent=getWeatherIcon(t.current.weather_code)}catch(e){console.error("Failed to fetch weather:",e)}}
+function getWeatherIcon(e){return 0===e?'☀️':e<=3?'☁️':e<=48?'🌫️':e<=60?'💧':e<=70?'🌧️':e<=80?'❄️':e>80?'⛈️':'-'}
+async function findNearbyPlaces(){if(!lastPosition)return void alert("Waiting for your location.");const e=document.getElementById('places-status'),t=document.getElementById('places-list');e.textContent="Searching...",t.innerHTML='',clearPlacesMarkers();const o=2e3,n=lastPosition.latitude,a=lastPosition.longitude,c=`[out:json][timeout:25];(node["leisure"="park"](around:${o},${n},${a});way["leisure"="park"](around:${o},${n},${a});way["highway"~"^(footway|path|track)$"]["foot"="designated"](around:${o},${n},${a}););out body;>;out skel qt;`;try{const o=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',body:c}),n=await o.json();renderPlaces(n.elements)}catch(t){e.textContent="Could not fetch places."}}
+function renderPlaces(e){const t={};e.forEach(o=>{if(o.tags&&o.tags.name&&!t[o.tags.name]){let n,a;o.type==='node'?(n=o.lat,a=o.lon):o.type==='way'&&o.nodes&&void 0!==(n=(e.find(e=>'node'===e.type&&e.id===o.nodes[0]))?.lat)&&(a=n.lon),n&&a&&(t[o.tags.name]={name:o.tags.name,lat:n,lon:a})}});const o=Object.values(t),n=document.getElementById('places-list');if(document.getElementById('places-status').textContent=`Found ${o.length} places.`,0!==o.length)for(const e of o){const t=document.createElement('li');t.textContent=e.name,t.onclick=()=>map.setView([e.lat,e.lon],16),n.appendChild(t);const o=L.marker([e.lat,e.lon],{icon:L.icon({iconUrl:'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',shadowUrl:'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',iconSize:[25,41],iconAnchor:[12,41],popupAnchor:[1,-34],shadowSize:[41,41]})}).addTo(map).bindPopup(e.name);placesMarkers.push(o)}}
+function clearPlacesMarkers(){placesMarkers.forEach(e=>map.removeLayer(e)),placesMarkers=[]}
 
 // --- SENSORS & MAP ---
-function initMap() { if (!map) { map = L.map('map', { zoomControl: false }).setView([47.4473, -122.314], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map); userMarker = L.marker([0,0]).addTo(map); pathPolyline = L.polyline([], {color: '#e74c3c', weight: 5}).addTo(map); } }
-function startLocationTracking() { if (!navigator.geolocation) return; watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true }); }
-function stopLocationTracking() { if (watchId) navigator.geolocation.clearWatch(watchId); }
-function handleLocationUpdate(position) {
-    const { latitude, longitude } = position.coords;
-    const newLatLng = L.latLng(latitude, longitude);
-    if (lastPosition === null) { map.setView(newLatLng, 16); getWeather(latitude, longitude); document.getElementById('find-places-btn').disabled = false; }
-    userMarker.setLatLng(newLatLng);
-    pathPolyline.addLatLng(newLatLng);
-    if (lastPosition) { totalDistance += haversineDistance(lastPosition, { latitude, longitude }); }
-    lastPosition = { latitude, longitude };
-}
-function handleLocationError(error) { if (error.code === 1) alert("Location permission denied."); }
-function haversineDistance(c1, c2) { const R=3958.8; const dLat=(c2.latitude-c1.latitude)*Math.PI/180,dLon=(c2.longitude-c1.longitude)*Math.PI/180,lat1=c1.latitude*Math.PI/180,lat2=c2.latitude*Math.PI/180; const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.sin(dLon/2)*Math.sin(dLon/2)*Math.cos(lat1)*Math.cos(lat2); const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); return R*c; }
-function handleMotionEvent(event) { if(event.acceleration.x) motionMagnitude = Math.sqrt(event.acceleration.x**2 + event.acceleration.y**2 + event.acceleration.z**2); }
-function startMotionDetection() { if (typeof DeviceMotionEvent.requestPermission === 'function') { DeviceMotionEvent.requestPermission().then(state => { if (state === 'granted') window.addEventListener('devicemotion', handleMotionEvent); }); } else { window.addEventListener('devicemotion', handleMotionEvent); } }
-function stopMotionDetection() { window.removeEventListener('devicemotion', handleMotionEvent); motionMagnitude = 0; }
-function formatDuration(ms) { let s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);s%=60;m%=60;const p=n=>n.toString().padStart(2,'0');return`${p(h)}:${p(m)}:${p(s)}`; }
+function initMap(){if(!map){map=L.map('map',{zoomControl:!1}).setView([47.4473,-122.314],13),L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap'}).addTo(map),userMarker=L.marker([0,0]).addTo(map),pathPolyline=L.polyline([],{color:'#e74c3c',weight:5}).addTo(map)}}
+function startLocationTracking(){if(navigator.geolocation)watchId=navigator.geolocation.watchPosition(handleLocationUpdate,handleLocationError,{enableHighAccuracy:!0})}
+function stopLocationTracking(){watchId&&navigator.geolocation.clearWatch(watchId)}
+function handleLocationUpdate(e){const{latitude:t,longitude:o}=e.coords,n=L.latLng(t,o);null===lastPosition&&(map.setView(n,16),getWeather(t,o),document.getElementById('find-places-btn').disabled=!1),userMarker.setLatLng(n),pathPolyline.addLatLng(n),lastPosition&&(totalDistance+=haversineDistance(lastPosition,{latitude:t,longitude:o})),lastPosition={latitude:t,longitude:o}}
+function handleLocationError(e){1===e.code&&alert("Location permission denied.")}
+function haversineDistance(e,t){const o=3958.8,n=(t.latitude-e.latitude)*Math.PI/180,a=(t.longitude-e.longitude)*Math.PI/180,c=e.latitude*Math.PI/180,i=t.latitude*Math.PI/180,d=Math.sin(n/2)*Math.sin(n/2)+Math.sin(a/2)*Math.sin(a/2)*Math.cos(c)*Math.cos(i),l=2*Math.atan2(Math.sqrt(d),Math.sqrt(1-d));return o*l}
+function handleMotionEvent(e){e.acceleration.x&&(motionMagnitude=Math.sqrt(e.acceleration.x**2+e.acceleration.y**2+e.acceleration.z**2))}
+function startMotionDetection(){'function'==typeof DeviceMotionEvent.requestPermission?DeviceMotionEvent.requestPermission().then(e=>{'granted'===e&&window.addEventListener('devicemotion',handleMotionEvent)}):window.addEventListener('devicemotion',handleMotionEvent)}
+function stopMotionDetection(){window.removeEventListener('devicemotion',handleMotionEvent),motionMagnitude=0}
+function formatDuration(e){let t=Math.floor(e/1e3),o=Math.floor(t/60),n=Math.floor(o/60);t%=60,o%=60;const a=e=>e.toString().padStart(2,'0');return`${a(n)}:${a(o)}:${a(t)}`}
 
 // --- DATA & INIT ---
-function calculateWeightAndBMR() {
-    weightKg = (parseFloat(document.getElementById('weight').value) || 0) * 0.453592;
-    const heightCm = ((parseFloat(document.getElementById('height-ft').value||0)*12) + (parseFloat(document.getElementById('height-in').value||0)))*2.54;
-    const age = parseFloat(document.getElementById('age').value)||0;
-    const gender = document.querySelector('input[name="gender"]:checked')?.value;
-    if (weightKg > 0 && heightCm > 0 && age > 0 && gender) {
-        let bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + (gender === 'male' ? 5 : -161);
-        bmrPerSecond = bmr / 86400;
-    }
-}
-function saveAndCalculate() {
-    const userDetails = { weight: document.getElementById('weight').value, heightFt: document.getElementById('height-ft').value, heightIn: document.getElementById('height-in').value, age: document.getElementById('age').value, gender: document.querySelector('input[name="gender"]:checked')?.value };
-    localStorage.setItem('userDetails', JSON.stringify(userDetails));
-    calculateWeightAndBMR();
-}
-function loadUserDetails() {
-    const savedDetails = JSON.parse(localStorage.getItem('userDetails'));
-    if (savedDetails) {
-        document.getElementById('weight').value = savedDetails.weight || '165';
-        document.getElementById('height-ft').value = savedDetails.heightFt || '5';
-        document.getElementById('height-in').value = savedDetails.heightIn || '10';
-        document.getElementById('age').value = savedDetails.age || '30';
-        const gender = savedDetails.gender || 'male';
-        document.querySelector(`input[name="gender"][value="${gender}"]`).checked = true;
-    }
-    const savedGoal = localStorage.getItem('weeklyGoal');
-    if(savedGoal) document.getElementById('goal-input').value = savedGoal;
-}
-function showOnboarding() { if (!localStorage.getItem('onboardingComplete')) { document.getElementById('onboarding-modal').style.display = 'flex'; } }
-document.getElementById('onboarding-btn').onclick = () => { localStorage.setItem('onboardingComplete', 'true'); document.getElementById('onboarding-modal').style.display = 'none'; };
+function calculateWeightAndBMR(){weightKg=(parseFloat(document.getElementById('weight').value)||0)*0.453592;const e=2.54*((12*parseFloat(document.getElementById('height-ft').value||0))+parseFloat(document.getElementById('height-in').value||0)),t=parseFloat(document.getElementById('age').value)||0,o=document.querySelector('input[name="gender"]:checked')?.value;weightKg>0&&e>0&&t>0&&o&&(bmrPerSecond=((10*weightKg+6.25*e-5*t+('male'===o?5:-161))/86400))}
+function saveAndCalculate(){localStorage.setItem('userDetails',JSON.stringify({weight:document.getElementById('weight').value,heightFt:document.getElementById('height-ft').value,heightIn:document.getElementById('height-in').value,age:document.getElementById('age').value,gender:document.querySelector('input[name="gender"]:checked')?.value})),calculateWeightAndBMR()}
+function loadUserDetails(){const e=JSON.parse(localStorage.getItem('userDetails'));if(e){document.getElementById('weight').value=e.weight||'165',document.getElementById('height-ft').value=e.heightFt||'5',document.getElementById('height-in').value=e.heightIn||'10',document.getElementById('age').value=e.age||'30';const t=e.gender||'male';document.querySelector(`input[name="gender"][value="${t}"]`).checked=!0}const t=localStorage.getItem('weeklyGoal');t&&(document.getElementById('goal-input').value=t),calculateWeightAndBMR(),updateGoalProgress(),renderHistory()}
+function showOnboarding(){!localStorage.getItem('onboardingComplete_v5')&&document.getElementById('onboarding-modal').style.display('flex')}
+document.getElementById('onboarding-btn').onclick=()=>{localStorage.setItem('onboardingComplete_v5','true'),document.getElementById('onboarding-modal').style.display='none'};
 
+// --- APP INITIALIZATION ---
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('guest-btn').addEventListener('click', () => {
+        document.getElementById('login-page').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        loadUserDetails();
+        updateUIForMode();
+        showOnboarding();
+    });
+});
 </script>
 </body>
 </html>
