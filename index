@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Fitness Journal</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <style>
+        :root {
+            --bg-primary: #f4f7f6;
+            --bg-secondary: #fff;
+            --surface-primary: #f8f9f9;
+            --text-primary: #2c3e50;
+            --text-secondary: #7f8c8d;
+            --accent-primary: #3498db; /* Blue for Fasting Mode */
+            --accent-secondary: #27ae60; /* Green for Active Mode */
+            --accent-stop: #c0392b;
+            --border-color: #e1e5e8;
+        }
+
+        /* --- CORE APP STRUCTURE --- */
+        html, body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-primary);
+        }
+        .container { 
+            background-color: var(--bg-secondary); 
+            max-width: 700px; 
+            margin: 20px auto; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1); 
+        }
+        h1, h2, h3 { color: var(--text-primary); text-align: center; }
+        p.subtitle { text-align: center; margin-top: 0; margin-bottom: 20px; color: var(--text-secondary); }
+
+        /* --- Sections --- */
+        .section { 
+            margin-top: 20px; 
+            background-color: var(--surface-primary); 
+            padding: 20px; 
+            border-radius: 8px; 
+            border: 1px solid var(--border-color);
+        }
+        fieldset { border: none; padding: 0; margin: 0; }
+
+        /* --- Input Fields --- */
+        .input-group { margin-bottom: 15px; }
+        .input-group label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--text-primary); }
+        .input-group input { width: 100%; padding: 10px; border: 1px solid #bdc3c7; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        .input-group input:disabled { background-color: #eee; cursor: not-allowed; }
+        .height-group, .gender-group { display: flex; gap: 10px; }
+        .gender-group label { flex: 1; text-align: center; padding: 10px; border: 1px solid #bdc3c7; border-radius: 6px; cursor: pointer; background: white; color: #333; }
+        .gender-group input[type="radio"] { display: none; }
+        .gender-group input[type="radio"]:checked + label { background-color: var(--accent-primary); color: white; border-color: var(--accent-primary); }
+        
+        /* --- Tracker UI --- */
+        .top-info-cluster { display: flex; justify-content: space-between; align-items: center; gap: 20px; margin-bottom: 20px; flex-wrap: wrap; }
+        #weather-display, .goal-display { text-align: center; flex-grow: 1; }
+        #weather-icon { font-size: 32px; }
+        .goal-progress-circle { width: 60px; height: 60px; margin: 0 auto; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--accent-secondary) 0deg, #e0e0e0 0deg); }
+        .goal-percent { font-size: 18px; font-weight: bold; color: var(--text-primary); }
+        
+        .mode-switch { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+        .switch { position: relative; display: inline-block; width: 60px; height: 34px; margin: 0 10px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch input:disabled + .slider { background-color: #ccc !important; cursor: not-allowed; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: var(--accent-primary); transition: .4s; border-radius: 34px; }
+        input:checked + .slider { background-color: var(--accent-secondary); }
+        .slider:before { position: absolute; content: ""; height: 26px; width: 26px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider:before { transform: translateX(26px); }
+
+        #fasting-ui-container { text-align: center; padding: 20px 0; }
+        #fasting-timer { font-size: 3.5rem; font-weight: 300; letter-spacing: 2px; color: var(--text-primary); }
+        #fasting-calories { font-size: 1.2rem; opacity: 0.8; margin-top: -5px; color: var(--text-secondary); }
+        
+        #active-mode-ui { display: none; }
+        .metrics-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; text-align: center; margin-top: 10px; }
+        .metric .value { font-size: 28px; font-weight: bold; color: var(--text-primary); }
+        .metric .label { font-size: 14px; color: var(--text-secondary); }
+        #detected-activity { font-size: 20px; font-weight: bold; text-align: center; margin: 15px 0; }
+        
+        #map-container { margin-top: 20px; }
+        #map { height: 350px; border-radius: 8px; border: 1px solid var(--border-color); }
+        
+        .button-group { display: flex; gap: 10px; margin-top: 20px; }
+        .button-group button, #start-stop-btn { flex: 1; padding: 15px; font-size: 18px; font-weight: bold; color: white; border: none; border-radius: 8px; cursor: pointer; transition: background-color 0.3s; }
+        #start-stop-btn:active { transform: scale(0.98); }
+        #find-places-btn { background-color: #16a085; }
+        #find-places-btn:disabled { background-color: #95a5a6; cursor: not-allowed; }
+
+        /* --- Places List & History --- */
+        #places-section { margin-top: 20px; }
+        #places-list { list-style: none; padding: 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 6px; }
+        #places-list li { padding: 12px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: background-color 0.2s; }
+        #places-list li:last-child { border-bottom: none; }
+        #places-list li:hover { background-color: #eee; }
+        .history-entry { background: white; border: 1px solid var(--border-color); border-radius: 8px; padding: 15px; margin-bottom: 15px; position: relative; }
+        .history-header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-weight: bold; }
+        .history-photo { width: 100%; max-height: 300px; border-radius: 6px; margin-top: 10px; object-fit: cover; }
+        .history-notes { margin-top: 10px; font-style: italic; color: #34495e; white-space: pre-wrap; text-align: left; }
+        .share-btn { position: absolute; top: 10px; right: 10px; font-size: 24px; background: none; border: none; cursor: pointer; opacity: 0.6; }
+        #history-log:empty::after { content: "Your completed sessions will appear here."; display: block; text-align: center; padding: 20px; color: var(--text-secondary); }
+        
+        /* --- Modals --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 2000; display: none; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: var(--bg-secondary); color: var(--text-primary); padding: 25px; border-radius: 10px; width: 100%; max-width: 500px; text-align: center; }
+        .modal-content h2 { margin-top: 0; }
+        .modal-stats { display: flex; justify-content: space-around; margin: 20px 0; font-size: 18px; }
+        #modal-notes { width: 100%; box-sizing: border-box; min-height: 80px; padding: 10px; border-radius: 6px; border: 1px solid #ccc; margin-top: 10px; }
+        #modal-photo-preview { max-width: 100%; max-height: 200px; border-radius: 6px; margin-top: 15px; display: none; }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-buttons button, #onboarding-btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; }
+        #modal-save-btn { background: var(--accent-secondary); color: white; }
+        #modal-cancel-btn { background: var(--accent-stop); color: white; }
+        #modal-photo-input { display: none; }
+        #modal-photo-label { display: block; background: var(--accent-primary); color: white; padding: 12px; border-radius: 8px; cursor: pointer; margin-top: 15px; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Fitness Journal</h1>
+    <p class="subtitle">Track your fasts, log your activities, and find new places.</p>
+
+    <div id="settings-section" class="section">
+        <h2 style="margin-top:0;">Settings & Details</h2>
+        <div class="input-group">
+            <h3>Weekly Goal</h3>
+            <label for="goal-input">Distance Goal (miles)</label>
+            <input type="number" id="goal-input" placeholder="e.g., 10" onchange="saveGoal()">
+        </div>
+        <fieldset id="user-details">
+            <h3>Your Details</h3>
+            <div class="input-group"><label for="weight">Weight (lbs)</label><input type="number" id="weight" oninput="saveAndCalculate()"></div>
+             <div class="input-group"><label>Height</label><div class="height-group"><input type="number" id="height-ft" placeholder="feet" oninput="saveAndCalculate()"><input type="number" id="height-in" placeholder="inches" oninput="saveAndCalculate()"></div></div>
+             <div class="input-group"><label>Age</label><input type="number" id="age" oninput="saveAndCalculate()"></div>
+             <div class="input-group"><label>Gender</label><div class="gender-group"><input type="radio" id="male" name="gender" value="male" onchange="saveAndCalculate()"><label for="male">Male</label><input type="radio" id="female" name="gender" value="female" onchange="saveAndCalculate()"><label for="female">Female</label></div></div>
+        </fieldset>
+    </div>
+
+    <div id="tracker-section" class="section">
+        <div class="top-info-cluster">
+            <div id="weather-display">
+                <div id="weather-icon">--</div>
+                <div id="weather-temp">--°F</div>
+            </div>
+            <div class="goal-display">
+                <div class="goal-progress-circle" id="goal-progress"><span class="goal-percent" id="goal-percent">0%</span></div>
+                <div class="label" style="font-size:13px; color:var(--text-secondary); margin-top:5px;">Weekly Goal</div>
+            </div>
+        </div>
+        <div class="mode-switch">
+            <label>Fasting</label>
+            <label class="switch"><input type="checkbox" id="mode-toggle" onchange="toggleMode()"><span class="slider"></span></label>
+            <label>Active</label>
+        </div>
+        
+        <div id="fasting-ui-container">
+            <div id="fasting-timer">00:00:00</div>
+            <div id="fasting-calories"><span class="value">0</span> Calories Burned</div>
+        </div>
+
+        <div id="active-mode-ui">
+            <div class="metrics-grid">
+                <div id="active-calories-metric" class="metric"><div id="active-calories-burned" class="value">0</div><div class="label">Calories</div></div>
+                <div class="metric"><div id="distance-traveled" class="value">0.0</div><div class="label">Distance (miles)</div></div>
+            </div>
+            <div id="detected-activity">Stationary</div>
+            <div id="map-container"><div id="map"></div></div>
+            <div class="button-group">
+                <button id="find-places-btn" onclick="findNearbyPlaces()" disabled>Find Places</button>
+            </div>
+            <div id="places-section">
+                <h3>Nearby Parks & Trails</h3>
+                <ul id="places-list"></ul>
+                <div id="places-status"></div>
+            </div>
+        </div>
+        <button id="start-stop-btn" onclick="toggleSession()"></button>
+    </div>
+
+    <div id="history-section" class="section">
+        <h2>Session Log</h2>
+        <div id="history-log"></div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="log-modal">
+    <div class="modal-content">
+        <h2>Session Complete!</h2>
+        <div class="modal-stats">
+            <div id="modal-duration"></div>
+            <div id="modal-distance"></div>
+            <div id="modal-calories"></div>
+        </div>
+        <textarea id="modal-notes" placeholder="How was it? Any thoughts?"></textarea>
+        <img id="modal-photo-preview" src="" alt="Your photo preview"/>
+        <label for="modal-photo-input" id="modal-photo-label">Add a Photo</label>
+        <input type="file" id="modal-photo-input" accept="image/*">
+        <div class="modal-buttons">
+            <button id="modal-cancel-btn">Discard</button>
+            <button id="modal-save-btn">Save to Log</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="onboarding-modal">
+    <div class="modal-content">
+        <h2>Welcome to Your Fitness Journal!</h2>
+        <p>This app helps you track your fasts and activities. Use the toggle switch in the tracker to change modes. Your data is saved right here in your browser.</p>
+        <button id="onboarding-btn">Got it!</button>
+    </div>
+</div>
+    
+<script>
+// --- STATE & DOM ---
+let isSessionActive = false, sessionInterval, totalCaloriesBurned = 0, totalDistance = 0, weightKg = 0, bmrPerSecond = 0, startTime;
+let currentMode = 'fasting';
+let motionMagnitude = 0, watchId, map, userMarker, pathPolyline, lastPosition = null, placesMarkers = [];
+const MET_VALUES = { STATIONARY: 1.5, WALKING: 3.5, RUNNING: 9.8 };
+let tempSessionData = {}, tempPhotoData = '';
+
+const modeToggle = document.getElementById('mode-toggle');
+const startStopBtn = document.getElementById('start-stop-btn');
+const logModal = document.getElementById('log-modal');
+const historyLog = document.getElementById('history-log');
+const goalProgress = document.getElementById('goal-progress');
+const goalPercent = document.getElementById('goal-percent');
+
+// --- UI & MODE ---
+function updateUIForMode() {
+    const isActive = currentMode === 'active';
+    document.getElementById('fasting-ui-container').style.display = isActive ? 'none' : 'block';
+    document.getElementById('active-mode-ui').style.display = isActive ? 'block' : 'none';
+    
+    startStopBtn.textContent = isSessionActive ? 'Stop Session' : 'Start Session';
+    startStopBtn.classList.toggle('stop', isSessionActive);
+    
+    if(isActive) { startStopBtn.style.backgroundColor = isSessionActive ? 'var(--accent-stop)' : 'var(--accent-secondary)'; }
+    else { startStopBtn.style.backgroundColor = isSessionActive ? 'var(--accent-stop)' : 'var(--accent-primary)'; }
+
+    if (isActive && !map) { initMap(); } 
+    else if (isActive && map) { map.invalidateSize(); }
+}
+
+function toggleMode() {
+    if (isSessionActive) {
+        alert("Stop the current session before changing modes.");
+        modeToggle.checked = (currentMode === 'active');
+        return;
+    }
+    currentMode = modeToggle.checked ? 'active' : 'fasting';
+    updateUIForMode();
+}
+
+// --- SESSION CONTROL ---
+function toggleSession() {
+    isSessionActive = !isSessionActive;
+    if(navigator.vibrate) navigator.vibrate(50);
+    
+    if (isSessionActive) {
+        calculateWeightAndBMR();
+        if (weightKg <= 0) { alert("Please fill in your details first."); isSessionActive = false; return; }
+        
+        startTime = new Date();
+        totalCaloriesBurned = 0;
+        document.querySelectorAll('#settings-section input, .mode-switch').forEach(el=>el.disabled=true);
+
+        if (currentMode === 'active') {
+            totalDistance = 0; lastPosition = null;
+            if(pathPolyline) pathPolyline.setLatLngs([]);
+            clearPlacesMarkers();
+            document.getElementById('find-places-btn').disabled = true;
+            startMotionDetection();
+            startLocationTracking();
+        }
+        sessionInterval = setInterval(updateTracker, 1000);
+    } else {
+        clearInterval(sessionInterval);
+        openLogModal();
+        document.querySelectorAll('#settings-section input, .mode-switch').forEach(el=>el.disabled=false);
+        if (currentMode === 'active') { stopMotionDetection(); stopLocationTracking(); }
+    }
+    updateUIForMode();
+}
+
+// --- TRACKER LOGIC ---
+function updateTracker() {
+    if (currentMode === 'fasting') {
+        totalCaloriesBurned += bmrPerSecond;
+        const elapsedMs = new Date() - startTime;
+        document.getElementById('fasting-timer').textContent = formatDuration(elapsedMs);
+        document.querySelector('#fasting-calories .value').textContent = totalCaloriesBurned.toFixed(0);
+    } else {
+        let met = 1.0;
+        if (motionMagnitude > 3.0) { met = MET_VALUES.RUNNING; document.getElementById('detected-activity').textContent = 'Running'; }
+        else if (motionMagnitude > 0.8) { met = MET_VALUES.WALKING; document.getElementById('detected-activity').textContent = 'Walking'; }
+        else { met = MET_VALUES.STATIONARY; document.getElementById('detected-activity').textContent = 'Stationary'; }
+        const caloriesPerSecond = (met * 3.5 * weightKg) / 12000;
+        
+        if (caloriesPerSecond > 0) totalCaloriesBurned += caloriesPerSecond;
+        document.getElementById('active-calories-burned').textContent = totalCaloriesBurned.toFixed(0);
+        document.getElementById('distance-traveled').textContent = totalDistance.toFixed(1);
+    }
+}
+
+// --- MODAL & LOGGING ---
+function openLogModal() {
+    const durationMs = new Date() - startTime;
+    tempSessionData = { date: new Date(), mode: currentMode, calories: totalCaloriesBurned.toFixed(0), distance: totalDistance.toFixed(2), duration: formatDuration(durationMs) };
+    
+    document.getElementById('modal-calories').textContent = `🔥 ${tempSessionData.calories} cal`;
+    const modalDistance = document.getElementById('modal-distance');
+    const modalDuration = document.getElementById('modal-duration');
+    const photoLabel = document.getElementById('modal-photo-label');
+    const photoPreview = document.getElementById('modal-photo-preview');
+
+    if (currentMode === 'active') {
+        modalDistance.textContent = `📏 ${tempSessionData.distance} mi`;
+        modalDistance.style.display = 'block';
+        if(modalDuration) modalDuration.style.display = 'none';
+        photoLabel.style.display = 'block';
+    } else {
+        modalDistance.style.display = 'none';
+        if(modalDuration) modalDuration.textContent = `⏱️ ${tempSessionData.duration}`;
+        if(modalDuration) modalDuration.style.display = 'block';
+        photoLabel.style.display = 'none';
+    }
+    document.getElementById('modal-notes').value = '';
+    photoPreview.style.display = 'none';
+    photoPreview.src = '';
+    tempPhotoData = '';
+    logModal.style.display = 'flex';
+}
+function closeLogModal() { logModal.style.display = 'none'; }
+function saveLog() {
+    tempSessionData.notes = document.getElementById('modal-notes').value;
+    if (currentMode === 'active') tempSessionData.photo = tempPhotoData;
+    const history = JSON.parse(localStorage.getItem('sessionHistory')) || [];
+    history.unshift(tempSessionData);
+    localStorage.setItem('sessionHistory', JSON.stringify(history));
+    updateGoalProgress();
+    renderHistory();
+    closeLogModal();
+}
+document.getElementById('modal-save-btn').onclick = saveLog;
+document.getElementById('modal-cancel-btn').onclick = closeLogModal;
+document.getElementById('modal-photo-input').onchange = (event) => {
+    const file = event.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+        tempPhotoData = e.target.result;
+        document.getElementById('modal-photo-preview').src = tempPhotoData;
+        document.getElementById('modal-photo-preview').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+};
+
+// --- HISTORY & SHARING ---
+function renderHistory() {
+    historyLog.innerHTML = '';
+    const history = JSON.parse(localStorage.getItem('sessionHistory')) || [];
+    history.forEach((session, index) => {
+        const entryDiv = document.createElement('div');
+        entryDiv.className = 'history-entry';
+        
+        let statsHtml = `🔥 ${session.calories} cal`;
+        if (session.mode === 'active' && parseFloat(session.distance) > 0) {
+            statsHtml += ` | 📏 ${session.distance} mi`;
+        } else if (session.duration) {
+            statsHtml += ` | ⏱️ ${session.duration}`;
+        }
+        
+        entryDiv.innerHTML = `
+            <button class="share-btn" onclick='shareSession(${index})'>📤</button>
+            <div class="history-header">
+                <span>${new Date(session.date).toLocaleDateString()}</span>
+                <span>${statsHtml}</span>
+            </div>
+            ${session.photo ? `<img src="${session.photo}" class="history-photo" alt="User activity photo">` : ''}
+            ${session.notes ? `<p class="history-notes">${session.notes}</p>` : ''}
+        `;
+        historyLog.appendChild(entryDiv);
+    });
+}
+async function shareSession(index) {
+    const history = JSON.parse(localStorage.getItem('sessionHistory')) || [];
+    const session = history[index]; if (!session) return;
+    let text;
+    if (session.mode === 'active') { text = `I just completed a workout! I went ${session.distance} miles and burned ${session.calories} calories.`; }
+    else { text = `I just finished a ${session.duration} fast and burned ${session.calories} calories.`; }
+    if (navigator.share) {
+        try { await navigator.share({ title: 'My Fitness Activity', text: text }); }
+        catch (error) { console.error('Error sharing:', error); }
+    } else { alert('Web Share is not supported on this browser.'); }
+}
+
+// --- GOALS, WEATHER, PLACES ---
+function saveGoal() {
+    const goal = document.getElementById('goal-input').value;
+    localStorage.setItem('weeklyGoal', goal);
+    updateGoalProgress();
+}
+function updateGoalProgress() {
+    const goal = parseFloat(localStorage.getItem('weeklyGoal')) || 0;
+    if (goal <= 0) { goalPercent.textContent = `Set`; goalProgress.style.background = `conic-gradient(#e0e0e0 360deg, #e0e0e0 0deg)`; return; }
+    const history = JSON.parse(localStorage.getItem('sessionHistory')) || [];
+    const oneWeekAgo = new Date(); oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+    const weeklyDistance = history.filter(s => new Date(s.date) >= oneWeekAgo && s.mode === 'active').reduce((sum, s) => sum + parseFloat(s.distance), 0);
+    const percent = Math.min(100, (weeklyDistance / goal) * 100);
+    goalPercent.textContent = `${Math.round(percent)}%`;
+    goalProgress.style.background = `conic-gradient(var(--accent-secondary) ${percent * 3.6}deg, #e0e0e0 ${percent * 3.6}deg)`;
+}
+async function getWeather(lat, lon) {
+    const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&temperature_unit=fahrenheit`;
+    try {
+        const response = await fetch(url);
+        const data = await response.json();
+        document.getElementById('weather-temp').textContent = `${Math.round(data.current.temperature_2m)}°F`;
+        document.getElementById('weather-icon').textContent = getWeatherIcon(data.current.weather_code);
+    } catch(error) { console.error("Failed to fetch weather:", error); }
+}
+function getWeatherIcon(c) { if(c===0)return'☀️';if(c<=3)return'☁️';if(c<=48)return'🌫️';if(c<=60)return'💧';if(c<=70)return'🌧️';if(c<=80)return'❄️';if(c>80)return'⛈️';return'-';}
+async function findNearbyPlaces() {
+    if (!lastPosition) { alert("Waiting for your location."); return; }
+    const placesStatus = document.getElementById('places-status');
+    const placesList = document.getElementById('places-list');
+    placesStatus.textContent = "Searching...";
+    placesList.innerHTML = ''; clearPlacesMarkers();
+    const radius=2000, lat=lastPosition.latitude, lon=lastPosition.longitude;
+    const query = `[out:json][timeout:25];(node["leisure"="park"](around:${radius},${lat},${lon});way["leisure"="park"](around:${radius},${lat},${lon});way["highway"~"^(footway|path|track)$"]["foot"="designated"](around:${radius},${lat},${lon}););out body;>;out skel qt;`;
+    try {
+        const response = await fetch('https://overpass-api.de/api/interpreter', { method: 'POST', body: query });
+        const data = await response.json();
+        renderPlaces(data.elements);
+    } catch (error) { placesStatus.textContent = "Could not fetch places."; }
+}
+function renderPlaces(elements) {
+    const places = {};
+    elements.forEach(el => {
+        if (el.tags && el.tags.name) {
+            if (!places[el.tags.name]) {
+                let lat, lon;
+                if (el.type === 'node') { lat = el.lat; lon = el.lon; }
+                else if (el.type === 'way' && el.nodes) { const firstNode = elements.find(e => e.id === el.nodes[0]); if (firstNode) { lat = firstNode.lat; lon = firstNode.lon; } }
+                if (lat && lon) places[el.tags.name] = { name: el.tags.name, lat, lon };
+            }
+        }
+    });
+    const placesArray = Object.values(places);
+    const placesList = document.getElementById('places-list');
+    document.getElementById('places-status').textContent = `Found ${placesArray.length} places.`;
+    if (placesArray.length === 0) return;
+    placesArray.forEach(place => {
+        const li = document.createElement('li');
+        li.textContent = place.name;
+        li.onclick = () => map.setView([place.lat, place.lon], 16);
+        placesList.appendChild(li);
+        const placeMarker = L.marker([place.lat, place.lon], { icon: L.icon({ iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png`, shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], shadowSize: [41, 41] }) }).addTo(map).bindPopup(place.name);
+        placesMarkers.push(placeMarker);
+    });
+}
+function clearPlacesMarkers() { placesMarkers.forEach(marker => map.removeLayer(marker)); placesMarkers = []; }
+
+// --- SENSORS & MAP ---
+function initMap() { if (!map) { map = L.map('map', { zoomControl: false }).setView([47.4473, -122.314], 13); L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '&copy; OpenStreetMap' }).addTo(map); userMarker = L.marker([0,0]).addTo(map); pathPolyline = L.polyline([], {color: '#e74c3c', weight: 5}).addTo(map); } }
+function startLocationTracking() { if (!navigator.geolocation) return; watchId = navigator.geolocation.watchPosition(handleLocationUpdate, handleLocationError, { enableHighAccuracy: true }); }
+function stopLocationTracking() { if (watchId) navigator.geolocation.clearWatch(watchId); }
+function handleLocationUpdate(position) {
+    const { latitude, longitude } = position.coords;
+    const newLatLng = L.latLng(latitude, longitude);
+    if (lastPosition === null) { map.setView(newLatLng, 16); getWeather(latitude, longitude); document.getElementById('find-places-btn').disabled = false; }
+    userMarker.setLatLng(newLatLng);
+    pathPolyline.addLatLng(newLatLng);
+    if (lastPosition) { totalDistance += haversineDistance(lastPosition, { latitude, longitude }); }
+    lastPosition = { latitude, longitude };
+}
+function handleLocationError(error) { if (error.code === 1) alert("Location permission denied."); }
+function haversineDistance(c1, c2) { const R=3958.8; const dLat=(c2.latitude-c1.latitude)*Math.PI/180,dLon=(c2.longitude-c1.longitude)*Math.PI/180,lat1=c1.latitude*Math.PI/180,lat2=c2.latitude*Math.PI/180; const a=Math.sin(dLat/2)*Math.sin(dLat/2)+Math.sin(dLon/2)*Math.sin(dLon/2)*Math.cos(lat1)*Math.cos(lat2); const c=2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)); return R*c; }
+function handleMotionEvent(event) { if(event.acceleration.x) motionMagnitude = Math.sqrt(event.acceleration.x**2 + event.acceleration.y**2 + event.acceleration.z**2); }
+function startMotionDetection() { if (typeof DeviceMotionEvent.requestPermission === 'function') { DeviceMotionEvent.requestPermission().then(state => { if (state === 'granted') window.addEventListener('devicemotion', handleMotionEvent); }); } else { window.addEventListener('devicemotion', handleMotionEvent); } }
+function stopMotionDetection() { window.removeEventListener('devicemotion', handleMotionEvent); motionMagnitude = 0; }
+function formatDuration(ms) { let s=Math.floor(ms/1000),m=Math.floor(s/60),h=Math.floor(m/60);s%=60;m%=60;const p=n=>n.toString().padStart(2,'0');return`${p(h)}:${p(m)}:${p(s)}`; }
+
+// --- DATA & INIT ---
+function calculateWeightAndBMR() {
+    weightKg = (parseFloat(document.getElementById('weight').value) || 0) * 0.453592;
+    const heightCm = ((parseFloat(document.getElementById('height-ft').value||0)*12) + (parseFloat(document.getElementById('height-in').value||0)))*2.54;
+    const age = parseFloat(document.getElementById('age').value)||0;
+    const gender = document.querySelector('input[name="gender"]:checked')?.value;
+    if (weightKg > 0 && heightCm > 0 && age > 0 && gender) {
+        let bmr = (10 * weightKg) + (6.25 * heightCm) - (5 * age) + (gender === 'male' ? 5 : -161);
+        bmrPerSecond = bmr / 86400;
+    }
+}
+function saveAndCalculate() {
+    const userDetails = { weight: document.getElementById('weight').value, heightFt: document.getElementById('height-ft').value, heightIn: document.getElementById('height-in').value, age: document.getElementById('age').value, gender: document.querySelector('input[name="gender"]:checked')?.value };
+    localStorage.setItem('userDetails', JSON.stringify(userDetails));
+    calculateWeightAndBMR();
+}
+function loadUserDetails() {
+    const savedDetails = JSON.parse(localStorage.getItem('userDetails'));
+    if (savedDetails) {
+        document.getElementById('weight').value = savedDetails.weight || '165';
+        document.getElementById('height-ft').value = savedDetails.heightFt || '5';
+        document.getElementById('height-in').value = savedDetails.heightIn || '10';
+        document.getElementById('age').value = savedDetails.age || '30';
+        const gender = savedDetails.gender || 'male';
+        document.querySelector(`input[name="gender"][value="${gender}"]`).checked = true;
+    }
+    const savedGoal = localStorage.getItem('weeklyGoal');
+    if(savedGoal) document.getElementById('goal-input').value = savedGoal;
+}
+function showOnboarding() { if (!localStorage.getItem('onboardingComplete')) { document.getElementById('onboarding-modal').style.display = 'flex'; } }
+document.getElementById('onboarding-btn').onclick = () => { localStorage.setItem('onboardingComplete', 'true'); document.getElementById('onboarding-modal').style.display = 'none'; };
+
+window.onload = () => { 
+    loadUserDetails(); 
+    calculateWeightAndBMR(); 
+    updateGoalProgress();
+    renderHistory();
+    updateUIForMode();
+    showOnboarding();
+};
+</script>
+</body>
+</html>
